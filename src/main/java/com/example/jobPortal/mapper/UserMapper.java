@@ -11,7 +11,7 @@ import org.mapstruct.Mapping;
 public interface UserMapper {
 
     //DTO to entity
-    @Mapping(target="provider", expression = "java(com.jobportal.entity.AuthProvider.LOCAL)")
+    @Mapping(target="authProvider", expression = "java(com.example.jobPortal.entity.AuthProvider.LOCAL)")
     User toEntity(UserRequestDTO userRequestDTO);
 
     //entity to DTO
