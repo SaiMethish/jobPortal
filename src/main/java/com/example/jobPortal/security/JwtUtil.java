@@ -5,11 +5,14 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
+
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.UUID;
 
+@Component
 public class JwtUtil {
     private final  String SECRET="supersecretkeysupersecretkeysupersecretkey";
 
@@ -18,7 +21,7 @@ public class JwtUtil {
     private final long ACCESS_TOKEN_EXPIRY = 1000 * 60 * 15;  // 15 min
     private final long REFRESH_TOKEN_EXPIRY = 1000L * 60 * 60 * 24 * 7; // 7 days
 
-    private String generateAccessToken(String email, UUID userId, Role role){
+    public String generateAccessToken(String email, UUID userId, Role role){
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId",userId.toString())
@@ -29,7 +32,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    private String generateRefreshToken(String email){
+    public String generateRefreshToken(String email){
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
@@ -38,11 +41,11 @@ public class JwtUtil {
                 .compact();
     }
 
-    private String getEmailFromToken(String token){
+    public String getEmailFromToken(String token){
         return parseToken(token).getSubject();
     }
 
-    private Claims parseToken(String token){
+    public Claims parseToken(String token){
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -50,7 +53,7 @@ public class JwtUtil {
                 .getBody();
     }
 
-    private boolean isTokenValid(String token){
+    public boolean isTokenValid(String token){
         try{
             parseToken(token);
             return true;
