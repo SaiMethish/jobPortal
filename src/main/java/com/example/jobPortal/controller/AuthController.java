@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -41,4 +43,10 @@ public class AuthController {
         if(refreshToken==null) throw new RuntimeException("Missing refresh Token");
         return authService.refresh(refreshToken);
     }
+
+    @GetMapping("oauth2/authorize/google")
+    public void googleRedirect(HttpServletResponse response) throws IOException{
+        response.sendRedirect("/oauth2/authorization/google");
+    }
+
 }

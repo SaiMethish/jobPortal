@@ -1,4 +1,17 @@
 spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 123010697609-bnhgs1n2hbkjh3lba07ffclejf226rqc.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - email
+              - profile
+        provider:
+          google:
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
   application:
     name: jobPortal
   datasource:
