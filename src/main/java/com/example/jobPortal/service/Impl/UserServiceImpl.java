@@ -3,6 +3,8 @@ package com.example.jobPortal.service.Impl;
 import com.example.jobPortal.dto.request.UserRequestDTO;
 import com.example.jobPortal.dto.response.UserResponseDTO;
 import com.example.jobPortal.entity.User;
+import com.example.jobPortal.exception.EmailAlreadyExistsException;
+import com.example.jobPortal.exception.ResourceNotFoundException;
 import com.example.jobPortal.mapper.UserMapper;
 import com.example.jobPortal.repository.UserRepository;
 import com.example.jobPortal.service.UserService;
@@ -24,7 +26,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO register(UserRequestDTO dto) {
         if(userRepository.existsByEmail(dto.getEmail())){
-            throw new RuntimeException("Email already exists");
+            throw new EmailAlreadyExistsException("Email already exists");
         }
         User user=userMapper.toEntity(dto);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
@@ -34,7 +36,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO getUserByEmail(String email) {
-        User user= userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        User user= userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return userMapper.toResponseDTO(user);
     }
 }

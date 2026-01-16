@@ -4,6 +4,7 @@ package com.example.jobPortal.controller;
 import com.example.jobPortal.dto.request.LoginRequest;
 import com.example.jobPortal.dto.request.UserRequestDTO;
 import com.example.jobPortal.dto.response.AuthResponse;
+import com.example.jobPortal.exception.UnauthorizedException;
 import com.example.jobPortal.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,7 +41,7 @@ public class AuthController {
                 }
             }
         }
-        if(refreshToken==null) throw new RuntimeException("Missing refresh Token");
+        if(refreshToken==null) throw new UnauthorizedException("Missing refresh Token");
         return authService.refresh(refreshToken);
     }
 
