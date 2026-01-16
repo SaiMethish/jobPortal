@@ -4,6 +4,9 @@ import com.example.jobPortal.dto.request.LoginRequest;
 import com.example.jobPortal.dto.request.UserRequestDTO;
 import com.example.jobPortal.dto.response.AuthResponse;
 import com.example.jobPortal.entity.User;
+import com.example.jobPortal.exception.EmailAlreadyExistsException;
+import com.example.jobPortal.exception.InvalidTokenException;
+import com.example.jobPortal.exception.ResourceNotFoundException;
 import com.example.jobPortal.mapper.UserMapper;
 import com.example.jobPortal.repository.UserRepository;
 import com.example.jobPortal.security.JwtUtil;
@@ -29,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse register(UserRequestDTO dto, HttpServletResponse response) {
         if(repo.existsByEmail(dto.getEmail())){
-            throw new RuntimeException("user already registered");
+            throw new EmailAlreadyExistsException("user already registered");
         }
         User user=userMapper.toEntity(dto);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
@@ -53,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse login(LoginRequest dto, HttpServletResponse response) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(),dto
                 .getPassword()));
-        User user=repo.findByEmail(dto.getEmail()).orElseThrow(()-> new RuntimeException("user not found"));
+        User user=repo.findByEmail(dto.getEmail()).orElseThrow(()-> new ResourceNotFoundException("user not found"));
         String access=jwtUtil.generateAccessToken(user.getEmail(),user.getUserId(),user.getRole());
         String refresh=jwtUtil.generateRefreshToken(user.getEmail());
 
@@ -71,10 +74,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse refresh(String refreshToken) {
         if(!jwtUtil.isTokenValid(refreshToken)){
-            throw new RuntimeException("Invalid Refresh Token");
+            throw new InvalidTokenException("Invalid Refresh Token");
         }
         String email=jwtUtil.getEmailFromToken(refreshToken);
-        User user=repo.findByEmail(email).orElseThrow(()->new RuntimeException("user not found"));
+        User user=repo.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("user not found"));
         String newAccess=jwtUtil.generateAccessToken(user.getEmail(),user.getUserId(),user.getRole());
         return AuthResponse.builder()
                 .email(user.getEmail())
