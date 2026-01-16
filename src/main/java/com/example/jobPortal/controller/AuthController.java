@@ -9,6 +9,7 @@ import com.example.jobPortal.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +23,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public AuthResponse register(@RequestBody UserRequestDTO userRequestDTO, HttpServletResponse response){
+    public AuthResponse register(@Valid @RequestBody UserRequestDTO userRequestDTO, HttpServletResponse response){
         return authService.register(userRequestDTO,response);
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody LoginRequest dto, HttpServletResponse response){
+    public AuthResponse login(@Valid @RequestBody LoginRequest dto, HttpServletResponse response){
         return authService.login(dto,response);
     }
 

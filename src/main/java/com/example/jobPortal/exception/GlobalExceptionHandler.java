@@ -3,6 +3,7 @@ package com.example.jobPortal.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -44,6 +45,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception exception, HttpServletRequest request){
         return buildResponse(exception.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR,request);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationErrors(MethodArgumentNotValidException exception,HttpServletRequest request){
+        String errorMsg=exception.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
+        return buildResponse(exception.getMessage(),HttpStatus.BAD_REQUEST,request);
     }
 
 
