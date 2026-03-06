@@ -4,12 +4,14 @@ import com.example.jobPortal.dto.request.LoginRequest;
 import com.example.jobPortal.dto.request.UserRequestDTO;
 import com.example.jobPortal.dto.response.AuthResponse;
 import com.example.jobPortal.entity.CandidateProfile;
+import com.example.jobPortal.entity.RecruiterProfile;
 import com.example.jobPortal.entity.User;
 import com.example.jobPortal.exception.EmailAlreadyExistsException;
 import com.example.jobPortal.exception.InvalidTokenException;
 import com.example.jobPortal.exception.ResourceNotFoundException;
 import com.example.jobPortal.mapper.UserMapper;
 import com.example.jobPortal.repository.CandidateProfileRepository;
+import com.example.jobPortal.repository.RecruiterProfileRepository;
 import com.example.jobPortal.repository.UserRepository;
 import com.example.jobPortal.security.JwtUtil;
 import com.example.jobPortal.service.AuthService;
@@ -31,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final CandidateProfileRepository candidateProfileRepository;
+    private final RecruiterProfileRepository recruiterProfileRepository;
 
     @Override
     public AuthResponse register(UserRequestDTO dto, HttpServletResponse response) {
@@ -45,6 +48,10 @@ public class AuthServiceImpl implements AuthService {
             candidateProfile.setUser(user);
             candidateProfile.setFullName("");
             candidateProfileRepository.save(candidateProfile);
+        } else if (user.getRole() == com.example.jobPortal.entity.Role.RECRUITER) {
+            RecruiterProfile recruiterProfile = new RecruiterProfile();
+            recruiterProfile.setUser(user);
+            recruiterProfileRepository.save(recruiterProfile);
         }
 
         String access = jwtUtil.generateAccessToken(user.getEmail(), user.getUserId(), user.getRole());
