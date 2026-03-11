@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/jobs")
 @CrossOrigin(allowCredentials = "true", origins = "http://localhost:3000")
@@ -15,6 +17,17 @@ import org.springframework.web.bind.annotation.*;
 public class JobSearchController {
 
     private final JobSearchService jobSearchService;
+
+    /**
+     * Get details of a single OPEN job.
+     * Public endpoint — no authentication required.
+     *
+     * Example: GET /jobs/3c0f0c6a-4e9e-4f9a-9c2c-1b0bfaef01f1
+     */
+    @GetMapping("/{jobId}")
+    public JobResponseDTO getJobDetails(@PathVariable UUID jobId) {
+        return jobSearchService.getJobById(jobId);
+    }
 
     /**
      * Public search endpoint for candidates.

@@ -11,12 +11,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface JobRepository extends JpaRepository<Job, UUID> {
 
         /** Fetch all jobs posted by a specific recruiter. */
         List<Job> findByRecruiterProfile(RecruiterProfile recruiterProfile);
+
+        /** Fetch a single job only if it has the given status (e.g. OPEN). */
+        Optional<Job> findByIdAndStatus(UUID id, JobStatus status);
 
         /** Search jobs with optional filters — only OPEN jobs are returned. */
         @Query("SELECT j FROM Job j WHERE j.status = :status "

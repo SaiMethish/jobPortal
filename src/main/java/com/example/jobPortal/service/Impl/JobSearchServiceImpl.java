@@ -4,6 +4,7 @@ import com.example.jobPortal.dto.response.JobResponseDTO;
 import com.example.jobPortal.entity.Job;
 import com.example.jobPortal.entity.JobStatus;
 import com.example.jobPortal.entity.JobType;
+import com.example.jobPortal.exception.ResourceNotFoundException;
 import com.example.jobPortal.repository.JobRepository;
 import com.example.jobPortal.service.JobSearchService;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +12,24 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class JobSearchServiceImpl implements JobSearchService {
 
     private final JobRepository jobRepository;
 
+    // ── Job Details (Redis-cacheable in future) ─────────────
+    @Override
+    public JobResponseDTO getJobById(UUID jobId) {
+        Job job = jobRepository.findByIdAndStatus(jobId, JobStatus.OPEN)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Job not found or is no longer available: " + jobId));
+        return toResponseDTO(job);
+    }
+
+    // ── Search ───────────────────────────────────────────────
     @Override
     public Page<JobResponseDTO> searchJobs(String title,
             String skills,
