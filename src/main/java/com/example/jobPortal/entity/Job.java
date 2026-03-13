@@ -62,6 +62,10 @@ public class Job {
     @Builder.Default
     private JobStatus status = JobStatus.OPEN;
 
+    @Column(name = "application_count")
+    @Builder.Default
+    private int applicationCount = 0;
+
     // ── Auditing ──────────────────────────────────────────────
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

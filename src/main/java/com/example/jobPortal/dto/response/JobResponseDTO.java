@@ -24,6 +24,7 @@ public class JobResponseDTO {
     private String location;
     private JobType jobType;
     private JobStatus status;
+    private int applicationCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

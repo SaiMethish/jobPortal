@@ -58,6 +58,7 @@ public class JobSearchServiceImpl implements JobSearchService {
                 .location(job.getLocation())
                 .jobType(job.getJobType())
                 .status(job.getStatus())
+                .applicationCount(job.getApplicationCount())
                 .createdAt(job.getCreatedAt())
                 .updatedAt(job.getUpdatedAt())
                 .build();
