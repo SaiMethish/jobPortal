@@ -50,6 +50,17 @@ public class JobApplicationController {
         return jobApplicationService.getCandidateApplications(user, pageable);
     }
 
+    @PatchMapping("/candidate/applications/{applicationId}/withdraw")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public void withdrawApplication(
+            @PathVariable UUID applicationId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        
+        User user = getUserByEmail(userDetails.getUsername());
+        jobApplicationService.withdrawApplication(user, applicationId);
+    }
+
     // ── Recruiter Endpoints ──────────────────────────────────
 
     @GetMapping("/recruiter/jobs/{jobId}/applications")

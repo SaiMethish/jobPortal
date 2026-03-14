@@ -112,6 +112,31 @@ public class JobApplicationServiceImpl implements JobApplicationService {
         return toApplicantResponseDTO(updatedApp);
     }
 
+    @Override
+    @Transactional
+    public void withdrawApplication(User user, UUID applicationId) {
+        JobApplication application = jobApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
+
+        if (!application.getCandidateProfile().getUser().getUserId().equals(user.getUserId())) {
+            throw new ForbiddenException("You are not authorized to withdraw this application");
+        }
+
+        JobApplicationStatus currentStatus = application.getStatus();
+        if (currentStatus == JobApplicationStatus.WITHDRAWN || currentStatus == JobApplicationStatus.REJECTED || currentStatus == JobApplicationStatus.HIRED) {
+            throw new BadRequestException("Cannot withdraw application from current status: " + currentStatus);
+        }
+
+        application.setStatus(JobApplicationStatus.WITHDRAWN);
+        JobApplication updatedApp = jobApplicationRepository.save(application);
+
+        Job job = application.getJob();
+        job.setApplicationCount(Math.max(0, job.getApplicationCount() - 1));
+        jobRepository.save(job);
+
+        createStatusHistory(updatedApp, currentStatus, JobApplicationStatus.WITHDRAWN, user);
+    }
+
     // ── Helpers ──────────────────────────────────────────────
 
     private boolean isValidTransition(JobApplicationStatus from, JobApplicationStatus to) {
@@ -119,10 +144,10 @@ public class JobApplicationServiceImpl implements JobApplicationService {
         if (to == JobApplicationStatus.REJECTED) return true; // Can reject anytime
 
         return switch (from) {
-            case APPLIED -> to == JobApplicationStatus.SHORTLISTED;
-            case SHORTLISTED -> to == JobApplicationStatus.INTERVIEW;
-            case INTERVIEW -> to == JobApplicationStatus.OFFERED;
-            case OFFERED -> to == JobApplicationStatus.HIRED;
+            case APPLIED -> to == JobApplicationStatus.SHORTLISTED || to == JobApplicationStatus.WITHDRAWN;
+            case SHORTLISTED -> to == JobApplicationStatus.INTERVIEW || to == JobApplicationStatus.WITHDRAWN;
+            case INTERVIEW -> to == JobApplicationStatus.OFFERED || to == JobApplicationStatus.WITHDRAWN;
+            case OFFERED -> to == JobApplicationStatus.HIRED || to == JobApplicationStatus.WITHDRAWN;
             default -> false;
         };
     }

@@ -64,7 +64,7 @@ public class Job {
 
     @Column(name = "application_count")
     @Builder.Default
-    private int applicationCount = 0;
+    private Integer applicationCount = 0;
 
     // ── Auditing ──────────────────────────────────────────────
     @Column(name = "created_at", updatable = false)

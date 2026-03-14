@@ -23,4 +23,7 @@ public interface JobApplicationService {
 
     /** Recruiter: Update the status of an application. */
     ApplicantResponseDTO updateApplicationStatus(User user, UUID applicationId, JobApplicationStatus status);
+
+    /** Candidate: Withdraw an application. */
+    void withdrawApplication(User user, UUID applicationId);
 }
