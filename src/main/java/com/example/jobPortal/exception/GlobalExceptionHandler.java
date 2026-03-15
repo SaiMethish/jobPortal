@@ -42,6 +42,16 @@ public class GlobalExceptionHandler {
         return buildResponse(exception.getMessage(), HttpStatus.UNAUTHORIZED,request);
     }
 
+    @ExceptionHandler(FileUploadException.class)
+    public ResponseEntity<ErrorResponse> handleFileUploadException(FileUploadException exception, HttpServletRequest request){
+        return buildResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler({org.springframework.security.access.AccessDeniedException.class, org.springframework.security.authorization.AuthorizationDeniedException.class})
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(Exception exception, HttpServletRequest request){
+        return buildResponse("Access Denied", HttpStatus.FORBIDDEN, request);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception exception, HttpServletRequest request){
         return buildResponse(exception.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR,request);
