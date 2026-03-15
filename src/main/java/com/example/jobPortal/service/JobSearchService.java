@@ -16,4 +16,6 @@ public interface JobSearchService {
             Long salaryMax,
             JobType jobType,
             Pageable pageable);
+
+    JobResponseDTO getJobById(java.util.UUID jobId);
 }

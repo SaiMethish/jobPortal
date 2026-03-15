@@ -44,4 +44,9 @@ public class JobSearchController {
                 salaryMin, salaryMax,
                 jobType, pageable);
     }
+
+    @GetMapping("/{jobId}")
+    public JobResponseDTO getJobById(@PathVariable java.util.UUID jobId) {
+        return jobSearchService.getJobById(jobId);
+    }
 }

@@ -12,6 +12,7 @@ import com.example.jobPortal.repository.JobRepository;
 import com.example.jobPortal.repository.RecruiterProfileRepository;
 import com.example.jobPortal.service.JobService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class JobServiceImpl implements JobService {
     private final RecruiterProfileRepository recruiterProfileRepository;
 
     @Override
+    @CacheEvict(value = "jobSearch", allEntries = true)
     public JobResponseDTO createJob(User user, JobRequestDTO dto) {
         RecruiterProfile recruiterProfile = getRecruiterProfile(user);
 
@@ -47,6 +49,7 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    @CacheEvict(value = {"jobSearch", "jobDetails"}, allEntries = true)
     public JobResponseDTO updateJob(User user, UUID jobId, JobRequestDTO dto) {
         RecruiterProfile recruiterProfile = getRecruiterProfile(user);
         Job job = getJobById(jobId);
@@ -67,6 +70,7 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    @CacheEvict(value = {"jobSearch", "jobDetails"}, allEntries = true)
     public JobResponseDTO closeJob(User user, UUID jobId) {
         RecruiterProfile recruiterProfile = getRecruiterProfile(user);
         Job job = getJobById(jobId);

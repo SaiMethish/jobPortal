@@ -11,7 +11,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class JobResponseDTO {
+public class JobResponseDTO implements java.io.Serializable {
     private UUID id;
     private UUID recruiterProfileId;
     private String title;

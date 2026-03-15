@@ -7,6 +7,7 @@ import com.example.jobPortal.entity.JobType;
 import com.example.jobPortal.repository.JobRepository;
 import com.example.jobPortal.service.JobSearchService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class JobSearchServiceImpl implements JobSearchService {
     private final JobRepository jobRepository;
 
     @Override
+    @Cacheable(value = "jobSearch")
     public Page<JobResponseDTO> searchJobs(String title,
             String skills,
             String location,
@@ -41,6 +43,14 @@ public class JobSearchServiceImpl implements JobSearchService {
                 pageable);
 
         return jobs.map(this::toResponseDTO);
+    }
+
+    @Override
+    @Cacheable(value = "jobDetails", key = "#jobId")
+    public JobResponseDTO getJobById(java.util.UUID jobId) {
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new com.example.jobPortal.exception.ResourceNotFoundException("Job not found"));
+        return toResponseDTO(job);
     }
 
     // ── Helper ───────────────────────────────────────────────
