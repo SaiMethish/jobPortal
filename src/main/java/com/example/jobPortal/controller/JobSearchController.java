@@ -6,8 +6,12 @@ import com.example.jobPortal.service.JobSearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Job Search APIs", description = "Public candidate endpoints evaluating indexed Job postings and extracting single entries.")
 @RestController
 @RequestMapping("/jobs")
 @CrossOrigin(allowCredentials = "true", origins = "http://localhost:3000")
@@ -26,17 +30,18 @@ public class JobSearchController {
      * Example: GET
      * /jobs/search?title=java&location=bangalore&page=0&size=10&sort=salaryMax,desc
      */
+    @Operation(summary = "Search Active Jobs", description = "Query dynamic filter vectors over OPEN job architectures securely indexed via Redis caches.")
     @GetMapping("/search")
     public Page<JobResponseDTO> searchJobs(
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String skills,
-            @RequestParam(required = false) String location,
-            @RequestParam(required = false) Integer experienceMin,
-            @RequestParam(required = false) Integer experienceMax,
-            @RequestParam(required = false) Long salaryMin,
-            @RequestParam(required = false) Long salaryMax,
-            @RequestParam(required = false) JobType jobType,
-            Pageable pageable) {
+            @Parameter(description = "Keyword title matching") @RequestParam(required = false) String title,
+            @Parameter(description = "Required technical skills") @RequestParam(required = false) String skills,
+            @Parameter(description = "Geographic bounds") @RequestParam(required = false) String location,
+            @Parameter(description = "Minimum chronological experience limits") @RequestParam(required = false) Integer experienceMin,
+            @Parameter(description = "Maximum chronological experience limits") @RequestParam(required = false) Integer experienceMax,
+            @Parameter(description = "Floor salary bounds") @RequestParam(required = false) Long salaryMin,
+            @Parameter(description = "Ceiling salary bounds") @RequestParam(required = false) Long salaryMax,
+            @Parameter(description = "FULL_TIME, PART_TIME, CONTRACT constraints") @RequestParam(required = false) JobType jobType,
+            @Parameter(description = "Pagination configuration") Pageable pageable) {
 
         return jobSearchService.searchJobs(
                 title, skills, location,
@@ -45,8 +50,9 @@ public class JobSearchController {
                 jobType, pageable);
     }
 
+    @Operation(summary = "Fetch Job via ID", description = "Explicitly loads a single specific Job's parameters from Postgres using primary keys.")
     @GetMapping("/{jobId}")
-    public JobResponseDTO getJobById(@PathVariable java.util.UUID jobId) {
+    public JobResponseDTO getJobById(@Parameter(description = "UUID targeting a specific row") @PathVariable java.util.UUID jobId) {
         return jobSearchService.getJobById(jobId);
     }
 }

@@ -10,11 +10,14 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
+@Tag(name = "Authentication APIs", description = "Endpoints for user registration, local login, JWT token refresh, and OAuth flows.")
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -22,16 +25,19 @@ import java.io.IOException;
 public class AuthController {
     private final AuthService authService;
 
+    @Operation(summary = "Register User", description = "Creates a new User account mapping locally returning Authentication tokens.")
     @PostMapping("/register")
     public AuthResponse register(@Valid @RequestBody UserRequestDTO userRequestDTO, HttpServletResponse response){
         return authService.register(userRequestDTO,response);
     }
 
+    @Operation(summary = "Login Local Account", description = "Executes email/password verification allocating new JWT access and HttpOnly refresh cookies.")
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest dto, HttpServletResponse response){
         return authService.login(dto,response);
     }
 
+    @Operation(summary = "Refresh JWT Identity", description = "Consumes HttpOnly 'refresh_token' returning a structurally renewed pair of JWT security cookies/headers.")
     @PostMapping("/refresh")
     public AuthResponse refresh(HttpServletRequest request){
         String refreshToken=null;
@@ -46,6 +52,7 @@ public class AuthController {
         return authService.refresh(refreshToken);
     }
 
+    @Operation(summary = "Google OAuth Request", description = "Redirects users natively strictly capturing standard Google Authentication forms.")
     @GetMapping("oauth2/authorize/google")
     public void googleRedirect(HttpServletResponse response) throws IOException{
         response.sendRedirect("/oauth2/authorization/google");

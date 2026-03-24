@@ -56,6 +56,18 @@ public class CandidateProfile {
     @Column(name = "resume_url")
     private String resumeUrl;
 
+    @Column(name = "resume_text", columnDefinition = "TEXT")
+    private String resumeText;
+
+    @Column(name = "education")
+    private String education;
+
+    @Column(name = "resume_parsed_at")
+    private LocalDateTime resumeParsedAt;
+
+    @Column(name = "resume_parser_version")
+    private String resumeParserVersion;
+
     // ── Auditing ──────────────────────────────────────────────
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

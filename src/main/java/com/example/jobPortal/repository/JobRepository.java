@@ -22,6 +22,9 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
         /** Fetch a single job only if it has the given status (e.g. OPEN). */
         Optional<Job> findByIdAndStatus(UUID id, JobStatus status);
 
+        /** Fetch all jobs matching a status that have expired past the provided time limit. */
+        List<Job> findByStatusAndExpiresAtBefore(JobStatus status, java.time.LocalDateTime time);
+
         /** Search jobs with optional filters — only OPEN jobs are returned. */
         @Query("SELECT j FROM Job j WHERE j.status = :status "
                         + "AND (:title IS NULL OR LOWER(j.title) LIKE LOWER(CONCAT('%', CAST(:title AS string), '%'))) "

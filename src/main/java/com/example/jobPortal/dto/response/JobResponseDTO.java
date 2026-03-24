@@ -27,4 +27,5 @@ public class JobResponseDTO implements java.io.Serializable {
     private int applicationCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime expiresAt;
 }

@@ -43,6 +43,7 @@ public class JobServiceImpl implements JobService {
                 .location(dto.getLocation())
                 .jobType(dto.getJobType())
                 .status(JobStatus.OPEN)
+                .expiresAt(java.time.LocalDateTime.now().plusDays(30))
                 .build();
 
         return toResponseDTO(jobRepository.save(job));
@@ -122,8 +123,10 @@ public class JobServiceImpl implements JobService {
                 .location(job.getLocation())
                 .jobType(job.getJobType())
                 .status(job.getStatus())
+                .applicationCount(job.getApplicationCount())
                 .createdAt(job.getCreatedAt())
                 .updatedAt(job.getUpdatedAt())
+                .expiresAt(job.getExpiresAt())
                 .build();
     }
 }

@@ -14,4 +14,8 @@ public interface CandidateProfileRepository extends JpaRepository<CandidateProfi
 
     /** Check whether a profile already exists for the given user. */
     boolean existsByUser(User user);
+
+    /** Select strictly explicit strings mapped into active Profiles for GC cleanup algorithms */
+    @org.springframework.data.jpa.repository.Query("SELECT c.resumeUrl FROM CandidateProfile c WHERE c.resumeUrl IS NOT NULL")
+    java.util.List<String> findAllResumeUrls();
 }

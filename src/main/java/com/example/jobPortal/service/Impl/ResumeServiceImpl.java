@@ -1,10 +1,13 @@
 package com.example.jobPortal.service.Impl;
 
+import com.example.jobPortal.dto.response.ParsedResumeData;
 import com.example.jobPortal.entity.CandidateProfile;
 import com.example.jobPortal.entity.User;
 import com.example.jobPortal.exception.FileUploadException;
 import com.example.jobPortal.repository.CandidateProfileRepository;
 import com.example.jobPortal.repository.UserRepository;
+import com.example.jobPortal.service.ResumeParserService;
+import com.example.jobPortal.service.ResumeParsingService;
 import com.example.jobPortal.service.ResumeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,16 +32,19 @@ public class ResumeServiceImpl implements ResumeService {
 
     private final UserRepository userRepository;
     private final CandidateProfileRepository candidateProfileRepository;
+    private final ResumeParserService resumeParserService;
+    private final ResumeParsingService resumeParsingService;
 
     private static final String UPLOAD_DIR = "uploads/resumes/";
     private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList(
             "application/pdf",
             "application/msword", // .doc
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" // .docx
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+            "text/plain" // .txt
     );
 
     @Override
-    public String uploadResume(MultipartFile file, String userEmail) {
+    public ParsedResumeData uploadResume(MultipartFile file, String userEmail) {
         if (file.isEmpty()) {
             throw new FileUploadException("Cannot upload empty file.");
         }
@@ -50,13 +57,65 @@ public class ResumeServiceImpl implements ResumeService {
         CandidateProfile profile = candidateProfileRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Candidate profile not found"));
 
+        // Save Raw File
         String savedFilePath = saveFileLocally(file);
+        File localFile = new File(System.getProperty("user.dir") + savedFilePath);
 
-        // Update CandidateProfile
+        // Extract unstructured text
+        String extractedText = "";
+        try {
+            extractedText = resumeParserService.extractText(localFile);
+        } catch (Exception e) {
+            log.warn("Non-fatal parsing failure. Resume saved but text could not be extracted: {}", e.getMessage());
+        }
+
+        // Day 19: Parse structured fields from Text via RegEx/Dictionaries
+        ParsedResumeData parsedData = resumeParsingService.parseResume(extractedText);
+
+        // Enrich the Entity conditionally: Only overwrite if empty to preserve user overrides!
         profile.setResumeUrl(savedFilePath);
+        profile.setResumeText(extractedText);
+
+        if (profile.getPhone() == null && parsedData.getPhone() != null) {
+            profile.setPhone(parsedData.getPhone());
+        }
+        if (profile.getExperienceYears() == null && parsedData.getExperienceYears() != null) {
+            profile.setExperienceYears(parsedData.getExperienceYears());
+        }
+        if (profile.getEducation() == null && parsedData.getEducation() != null) {
+            profile.setEducation(parsedData.getEducation());
+        }
+        if ((profile.getSkills() == null || profile.getSkills().isEmpty()) && parsedData.getSkills() != null && !parsedData.getSkills().isEmpty()) {
+            profile.setSkills(parsedData.getSkills());
+        }
+
         candidateProfileRepository.save(profile);
 
-        return savedFilePath;
+        // Prep the return DTO
+        parsedData.setResumeUrl(savedFilePath);
+        parsedData.setMessage("Resume uploaded and parsed successfully");
+
+        return parsedData;
+    }
+
+    @Override
+    public ParsedResumeData getParsedResumePreview(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        CandidateProfile profile = candidateProfileRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Candidate profile not found"));
+        
+        String rawText = profile.getResumeText();
+        if (rawText == null || rawText.isEmpty()) {
+            throw new RuntimeException("No resume text found to preview. Please upload a valid resume first.");
+        }
+
+        ParsedResumeData parsedData = resumeParsingService.parseResume(rawText);
+        parsedData.setResumeUrl(profile.getResumeUrl());
+        parsedData.setMessage("Preview Generated Successfully");
+
+        return parsedData;
     }
 
     private void validateFileType(MultipartFile file) {

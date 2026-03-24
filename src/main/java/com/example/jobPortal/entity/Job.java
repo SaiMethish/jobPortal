@@ -66,6 +66,9 @@ public class Job {
     @Builder.Default
     private Integer applicationCount = 0;
 
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
     // ── Auditing ──────────────────────────────────────────────
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

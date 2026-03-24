@@ -15,9 +15,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.UUID;
 
+@Tag(name = "Job Application APIs", description = "Candidate application endpoints and Recruiter applicant screening tools mapped strictly via UUID relationships.")
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -28,34 +32,37 @@ public class JobApplicationController {
 
     // ── Candidate Endpoints ─────────────────────────────────
 
+    @Operation(summary = "Apply for Job", description = "Candidate submits DTO targeting an OPEN UUID securely instantiating new candidate-to-job relations.")
     @PostMapping("/jobs/{jobId}/apply")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('CANDIDATE')")
     public ApplicationResponseDTO applyToJob(
-            @PathVariable UUID jobId,
+            @Parameter(description = "Target Job UUID") @PathVariable UUID jobId,
             @RequestBody(required = false) ApplicationRequestDTO dto,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
         
         User user = getUserByEmail(userDetails.getUsername());
         return jobApplicationService.applyToJob(user, jobId, dto != null ? dto : new ApplicationRequestDTO());
     }
 
+    @Operation(summary = "Fetch My Applications", description = "Paginates historical applications submitted by Candidate.")
     @GetMapping("/candidate/applications")
     @PreAuthorize("hasRole('CANDIDATE')")
     public Page<ApplicationResponseDTO> getMyApplications(
-            @AuthenticationPrincipal UserDetails userDetails,
-            Pageable pageable) {
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails,
+            @Parameter(description = "Pagination config") Pageable pageable) {
         
         User user = getUserByEmail(userDetails.getUsername());
         return jobApplicationService.getCandidateApplications(user, pageable);
     }
 
+    @Operation(summary = "Withdraw Application", description = "Removes active candidate applications securely against candidate IDs.")
     @PatchMapping("/candidate/applications/{applicationId}/withdraw")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('CANDIDATE')")
     public void withdrawApplication(
-            @PathVariable UUID applicationId,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @Parameter(description = "Target Application UUID") @PathVariable UUID applicationId,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
         
         User user = getUserByEmail(userDetails.getUsername());
         jobApplicationService.withdrawApplication(user, applicationId);
@@ -63,23 +70,25 @@ public class JobApplicationController {
 
     // ── Recruiter Endpoints ──────────────────────────────────
 
+    @Operation(summary = "Fetch Job Applicants", description = "Recruiters pull paged Application statuses cross-referenced under exclusively owned Jobs.")
     @GetMapping("/recruiter/jobs/{jobId}/applications")
     @PreAuthorize("hasRole('RECRUITER')")
     public Page<ApplicantResponseDTO> getJobApplicants(
-            @PathVariable UUID jobId,
-            @AuthenticationPrincipal UserDetails userDetails,
-            Pageable pageable) {
+            @Parameter(description = "Target Job UUID") @PathVariable UUID jobId,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails,
+            @Parameter(description = "Pagination config") Pageable pageable) {
         
         User user = getUserByEmail(userDetails.getUsername());
         return jobApplicationService.getJobApplicants(user, jobId, pageable);
     }
 
+    @Operation(summary = "Update Applicant Status", description = "Allows Recruiter to mutate candidate states systematically (e.g. ACCEPTED, REJECTED).")
     @PatchMapping("/recruiter/applications/{applicationId}/status")
     @PreAuthorize("hasRole('RECRUITER')")
     public ApplicantResponseDTO updateApplicationStatus(
-            @PathVariable UUID applicationId,
+            @Parameter(description = "Target Application UUID") @PathVariable UUID applicationId,
             @RequestBody ApplicationStatusUpdateDTO dto,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
         
         User user = getUserByEmail(userDetails.getUsername());
         return jobApplicationService.updateApplicationStatus(user, applicationId, dto.getStatus());
