@@ -33,3 +33,7 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+logging:
+  level:
+    root: INFO
+    com.example.jobPortal: DEBUG

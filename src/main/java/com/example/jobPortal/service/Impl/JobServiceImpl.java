@@ -11,7 +11,9 @@ import com.example.jobPortal.exception.ResourceNotFoundException;
 import com.example.jobPortal.repository.JobRepository;
 import com.example.jobPortal.repository.RecruiterProfileRepository;
 import com.example.jobPortal.service.JobService;
+import com.example.jobPortal.service.AuditService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +23,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class JobServiceImpl implements JobService {
 
     private final JobRepository jobRepository;
     private final RecruiterProfileRepository recruiterProfileRepository;
+    private final AuditService auditService;
 
     @Override
     @CacheEvict(value = "jobSearch", allEntries = true)
@@ -46,7 +50,12 @@ public class JobServiceImpl implements JobService {
                 .expiresAt(java.time.LocalDateTime.now().plusDays(30))
                 .build();
 
-        return toResponseDTO(jobRepository.save(job));
+        Job savedJob = jobRepository.save(job);
+        
+        log.info("Recruiter {} is creating a job: {}", user.getEmail(), savedJob.getTitle());
+        auditService.logAction("JOB_CREATED", "JOB", savedJob.getId().toString(), user.getEmail());
+        
+        return toResponseDTO(savedJob);
     }
 
     @Override

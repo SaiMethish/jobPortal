@@ -141,6 +141,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>jobportal</finalName>
 		<plugins>
 
 			<!-- Compiler + Annotation Processing -->

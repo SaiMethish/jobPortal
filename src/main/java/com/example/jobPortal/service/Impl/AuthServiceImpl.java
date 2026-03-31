@@ -23,8 +23,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.jobPortal.service.AuditService;
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository repo;
@@ -34,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final CandidateProfileRepository candidateProfileRepository;
     private final RecruiterProfileRepository recruiterProfileRepository;
+    private final AuditService auditService;
 
     @Override
     public AuthResponse register(UserRequestDTO dto, HttpServletResponse response) {
@@ -58,6 +63,9 @@ public class AuthServiceImpl implements AuthService {
         String refresh = jwtUtil.generateRefreshToken(user.getEmail());
 
         CookieUtil.addRefreshTokenCookie(response, refresh);
+        
+        log.info("User {} registered successfully as {}", user.getEmail(), user.getRole());
+        auditService.logAction("USER_REGISTERED", "USER", user.getUserId().toString(), user.getEmail());
 
         return AuthResponse.builder()
                 .email(user.getEmail())
@@ -77,6 +85,9 @@ public class AuthServiceImpl implements AuthService {
         String refresh = jwtUtil.generateRefreshToken(user.getEmail());
 
         CookieUtil.addRefreshTokenCookie(response, refresh);
+        
+        log.info("User {} logged in successfully", user.getEmail());
+        auditService.logAction("USER_LOGIN", "USER", user.getUserId().toString(), user.getEmail());
 
         return AuthResponse.builder()
                 .email(user.getEmail())

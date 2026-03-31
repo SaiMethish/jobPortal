@@ -39,6 +39,9 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<Notification> notifications = new java.util.ArrayList<>();
+
     @PrePersist
     public void prePersist(){
         this.createdAt= LocalDateTime.now();

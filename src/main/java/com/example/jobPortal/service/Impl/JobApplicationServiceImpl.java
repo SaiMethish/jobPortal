@@ -11,8 +11,11 @@ import com.example.jobPortal.repository.ApplicationStatusHistoryRepository;
 import com.example.jobPortal.repository.CandidateProfileRepository;
 import com.example.jobPortal.repository.JobApplicationRepository;
 import com.example.jobPortal.repository.JobRepository;
+import com.example.jobPortal.service.AuditService;
 import com.example.jobPortal.service.JobApplicationService;
+import com.example.jobPortal.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,12 +25,15 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class JobApplicationServiceImpl implements JobApplicationService {
 
     private final JobApplicationRepository jobApplicationRepository;
     private final JobRepository jobRepository;
     private final CandidateProfileRepository candidateProfileRepository;
     private final ApplicationStatusHistoryRepository historyRepository;
+    private final AuditService auditService;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -58,6 +64,22 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
         // 3. Status History
         createStatusHistory(savedApp, null, JobApplicationStatus.APPLIED, user);
+
+        // 4. Notifications
+        notificationService.createNotification(
+                user, // candidate
+                "You have successfully applied for the job: " + job.getTitle(),
+                NotificationType.APPLICATION_APPLIED
+        );
+        
+        notificationService.createNotification(
+                job.getRecruiterProfile().getUser(), // recruiter
+                "A new candidate has applied for your job: " + job.getTitle(),
+                NotificationType.APPLICATION_APPLIED
+        );
+
+        log.info("Candidate {} applied for Job {}", user.getEmail(), job.getTitle());
+        auditService.logAction("APPLICATION_SUBMITTED", "APPLICATION", savedApp.getId().toString(), user.getEmail());
 
         return toApplicationResponseDTO(savedApp);
     }
@@ -109,6 +131,12 @@ public class JobApplicationServiceImpl implements JobApplicationService {
         // 4. Record History
         createStatusHistory(updatedApp, currentStatus, newStatus, user);
 
+        // 5. Notifications
+        sendCandidateStatusNotification(updatedApp, newStatus);
+
+        log.info("Recruiter {} updated application {} to {}", user.getEmail(), applicationId, newStatus);
+        auditService.logAction("APPLICATION_STATUS_UPDATED", "APPLICATION", updatedApp.getId().toString(), user.getEmail());
+
         return toApplicantResponseDTO(updatedApp);
     }
 
@@ -138,6 +166,25 @@ public class JobApplicationServiceImpl implements JobApplicationService {
     }
 
     // ── Helpers ──────────────────────────────────────────────
+    
+    private void sendCandidateStatusNotification(JobApplication application, JobApplicationStatus status) {
+        User candidate = application.getCandidateProfile().getUser();
+        String jobTitle = application.getJob().getTitle();
+        
+        switch (status) {
+            case SHORTLISTED:
+                notificationService.createNotification(candidate, "Your application for " + jobTitle + " has been shortlisted!", NotificationType.APPLICATION_SHORTLISTED);
+                break;
+            case INTERVIEW:
+                notificationService.createNotification(candidate, "You have been selected for an interview for " + jobTitle + "!", NotificationType.APPLICATION_INTERVIEW);
+                break;
+            case REJECTED:
+                notificationService.createNotification(candidate, "Your application for " + jobTitle + " has been rejected.", NotificationType.APPLICATION_REJECTED);
+                break;
+            default:
+                break; // Hired, Offered, etc. don't have explicit NotificationType as per instructions, but can be added later.
+        }
+    }
 
     private boolean isValidTransition(JobApplicationStatus from, JobApplicationStatus to) {
         if (from == to) return true;
