@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 public class JobSearchController {
 
     private final JobSearchService jobSearchService;
+    private final com.example.jobPortal.service.RecommendationService recommendationService;
+    private final com.example.jobPortal.repository.UserRepository userRepository;
 
     /**
      * Public search endpoint for candidates.
@@ -54,5 +56,15 @@ public class JobSearchController {
     @GetMapping("/{jobId}")
     public JobResponseDTO getJobById(@Parameter(description = "UUID targeting a specific row") @PathVariable java.util.UUID jobId) {
         return jobSearchService.getJobById(jobId);
+    }
+    
+    @Operation(summary = "Get AI Recommendations", description = "Maps semantic candidate data against Job postings natively building sorted top matches.")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('CANDIDATE')")
+    @GetMapping("/recommended")
+    public java.util.List<com.example.jobPortal.dto.response.RecommendedJobDTO> getRecommendations(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
+
+        com.example.jobPortal.entity.User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+        return recommendationService.getJobRecommendations(user);
     }
 }

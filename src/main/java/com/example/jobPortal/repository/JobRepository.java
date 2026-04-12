@@ -22,6 +22,9 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
         /** Fetch a single job only if it has the given status (e.g. OPEN). */
         Optional<Job> findByIdAndStatus(UUID id, JobStatus status);
 
+        /** Fetch all jobs mapping by status integrating page sizes */
+        Page<Job> findByStatus(JobStatus status, Pageable pageable);
+
         /** Fetch all jobs matching a status that have expired past the provided time limit. */
         List<Job> findByStatusAndExpiresAtBefore(JobStatus status, java.time.LocalDateTime time);
 
