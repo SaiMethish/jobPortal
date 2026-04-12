@@ -28,6 +28,7 @@ public class CandidateProfileServiceImpl implements CandidateProfileService {
         return mapper.toResponseDTO(profile);
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "recommendedJobs", key = "#user.userId")
     @Override
     public CandidateProfileResponseDTO updateCandidateProfile(User user, CandidateProfileRequestDTO dto) {
         CandidateProfile profile = repo.findByUser(user)
@@ -40,6 +41,7 @@ public class CandidateProfileServiceImpl implements CandidateProfileService {
         return mapper.toResponseDTO(repo.save(profile));
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "recommendedJobs", allEntries = true)
     @Override
     public void applyParsedResumeData(com.example.jobPortal.dto.request.CandidateProfileUpdateDTO dto, String userEmail) {
         User user = userRepository.findByEmail(userEmail)

@@ -36,6 +36,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final JobRepository jobRepository;
     private final RestClient restClient = RestClient.builder().baseUrl("http://localhost:8000").build();
 
+    @org.springframework.cache.annotation.Cacheable(value = "recommendedJobs", key = "#candidateUser.userId")
     @Override
     public List<RecommendedJobDTO> getJobRecommendations(User candidateUser) {
         CandidateProfile profile = candidateProfileRepository.findByUser(candidateUser)

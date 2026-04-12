@@ -31,7 +31,7 @@ public class JobServiceImpl implements JobService {
     private final AuditService auditService;
 
     @Override
-    @CacheEvict(value = "jobSearch", allEntries = true)
+    @CacheEvict(value = {"jobSearch", "recommendedJobs"}, allEntries = true)
     public JobResponseDTO createJob(User user, JobRequestDTO dto) {
         RecruiterProfile recruiterProfile = getRecruiterProfile(user);
 
@@ -59,7 +59,7 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    @CacheEvict(value = {"jobSearch", "jobDetails"}, allEntries = true)
+    @CacheEvict(value = {"jobSearch", "jobDetails", "recommendedJobs"}, allEntries = true)
     public JobResponseDTO updateJob(User user, UUID jobId, JobRequestDTO dto) {
         RecruiterProfile recruiterProfile = getRecruiterProfile(user);
         Job job = getJobById(jobId);
@@ -80,7 +80,7 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    @CacheEvict(value = {"jobSearch", "jobDetails"}, allEntries = true)
+    @CacheEvict(value = {"jobSearch", "jobDetails", "recommendedJobs"}, allEntries = true)
     public JobResponseDTO closeJob(User user, UUID jobId) {
         RecruiterProfile recruiterProfile = getRecruiterProfile(user);
         Job job = getJobById(jobId);
