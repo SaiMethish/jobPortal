@@ -122,6 +122,7 @@ public class JobServiceImpl implements JobService {
         return JobResponseDTO.builder()
                 .id(job.getId())
                 .recruiterProfileId(job.getRecruiterProfile().getId())
+                .companyName(job.getRecruiterProfile().getCompanyName())
                 .title(job.getTitle())
                 .description(job.getDescription())
                 .skills(job.getSkills())

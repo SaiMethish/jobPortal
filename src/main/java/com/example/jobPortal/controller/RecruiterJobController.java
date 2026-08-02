@@ -23,7 +23,7 @@ import java.util.UUID;
 @Tag(name = "Recruiter Job Management APIs", description = "Authoritative interfaces for Recruiters to explicitly Post, Edit, and Expire Jobs organically mapping JWT identities.")
 @RestController
 @RequestMapping("/recruiter/jobs")
-@CrossOrigin(allowCredentials = "true", origins = "http://localhost:3000")
+@CrossOrigin(allowCredentials = "true", origins = "http://localhost:4200")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('RECRUITER')")
 public class RecruiterJobController {

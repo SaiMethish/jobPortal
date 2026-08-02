@@ -14,6 +14,7 @@ import java.util.UUID;
 public class JobResponseDTO implements java.io.Serializable {
     private UUID id;
     private UUID recruiterProfileId;
+    private String companyName;
     private String title;
     private String description;
     private String skills;

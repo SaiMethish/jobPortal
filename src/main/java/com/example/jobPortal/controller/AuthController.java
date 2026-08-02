@@ -21,7 +21,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@CrossOrigin(allowCredentials = "true",origins = "http://localhost:3000")
+@CrossOrigin(allowCredentials = "true",origins = "http://localhost:4200")
 public class AuthController {
     private final AuthService authService;
 
