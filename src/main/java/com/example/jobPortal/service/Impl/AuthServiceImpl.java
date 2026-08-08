@@ -114,4 +114,14 @@ public class AuthServiceImpl implements AuthService {
                 .authProvider(user.getAuthProvider())
                 .build();
     }
+
+    @Override
+    public void resetPassword(String email, String newPassword) {
+        User user = repo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        repo.save(user);
+        
+        log.info("Password reset successfully for user: {}", email);
+        auditService.logAction("PASSWORD_RESET", "USER", user.getUserId().toString(), email);
+    }
 }

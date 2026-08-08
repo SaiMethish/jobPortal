@@ -66,6 +66,7 @@ class ResumeUploadIntegrationTest {
     void setUp() throws Exception {
         historyRepository.deleteAll();
         jobApplicationRepository.deleteAll();
+        savedJobRepository.deleteAll();
         jobRepository.deleteAll();
         recruiterProfileRepository.deleteAll();
         candidateProfileRepository.deleteAll(); 

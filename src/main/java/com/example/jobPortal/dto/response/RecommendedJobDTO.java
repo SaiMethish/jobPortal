@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RecommendedJobDTO {
+public class RecommendedJobDTO implements java.io.Serializable {
 
     private JobResponseDTO job;
     private Float score;

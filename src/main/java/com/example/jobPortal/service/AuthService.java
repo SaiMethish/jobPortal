@@ -10,4 +10,6 @@ public interface AuthService {
     AuthResponse register(UserRequestDTO dto, HttpServletResponse response);
     AuthResponse login(LoginRequest dto, HttpServletResponse response);
     AuthResponse refresh(String refreshToken);
+    
+    void resetPassword(String email, String newPassword);
 }

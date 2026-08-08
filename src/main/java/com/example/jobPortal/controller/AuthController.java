@@ -3,6 +3,7 @@ package com.example.jobPortal.controller;
 
 import com.example.jobPortal.dto.request.LoginRequest;
 import com.example.jobPortal.dto.request.UserRequestDTO;
+import com.example.jobPortal.dto.request.ResetPasswordRequest;
 import com.example.jobPortal.dto.response.AuthResponse;
 import com.example.jobPortal.exception.UnauthorizedException;
 import com.example.jobPortal.service.AuthService;
@@ -58,4 +59,20 @@ public class AuthController {
         response.sendRedirect("/oauth2/authorization/google");
     }
 
+    @Operation(summary = "Logout User", description = "Clears the refresh_token cookie.")
+    @PostMapping("/logout")
+    public void logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("refresh_token", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true); // Should match environment
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+    }
+
+    @Operation(summary = "Reset Password", description = "Directly resets the user password (simplified flow without email token).")
+    @PostMapping("/reset-password")
+    public void resetPassword(@Valid @RequestBody ResetPasswordRequest dto) {
+        authService.resetPassword(dto.getEmail(), dto.getNewPassword());
+    }
 }

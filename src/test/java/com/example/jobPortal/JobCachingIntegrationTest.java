@@ -37,6 +37,8 @@ class JobCachingIntegrationTest {
 
     @Autowired
     private JobRepository jobRepository;
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.example.jobPortal.repository.SavedJobRepository savedJobRepository;
 
     @Autowired
     private CacheManager cacheManager;
@@ -60,6 +62,7 @@ class JobCachingIntegrationTest {
     void setUp() {
         historyRepository.deleteAll();
         jobApplicationRepository.deleteAll();
+        savedJobRepository.deleteAll();
         jobRepository.deleteAll();
         recruiterProfileRepository.deleteAll();
         candidateProfileRepository.deleteAll();

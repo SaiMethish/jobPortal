@@ -41,6 +41,8 @@ class RateLimitingIntegrationTest {
 
     @Autowired
     private JobRepository jobRepository;
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.example.jobPortal.repository.SavedJobRepository savedJobRepository;
 
     @Autowired
     private com.example.jobPortal.repository.CandidateProfileRepository candidateProfileRepository;
@@ -57,6 +59,7 @@ class RateLimitingIntegrationTest {
     void setUp() {
         historyRepository.deleteAll();
         jobApplicationRepository.deleteAll();
+        savedJobRepository.deleteAll();
         jobRepository.deleteAll();
         recruiterProfileRepository.deleteAll();
         candidateProfileRepository.deleteAll();
