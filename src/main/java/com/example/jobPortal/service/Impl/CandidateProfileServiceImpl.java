@@ -38,6 +38,10 @@ public class CandidateProfileServiceImpl implements CandidateProfileService {
         profile.setLocation(dto.getLocation());
         profile.setExperienceYears(dto.getExperienceYears());
         profile.setSkills(dto.getSkills());
+        profile.setAbout(dto.getAbout());
+        profile.setExperience(dto.getExperience());
+        profile.setEducation(dto.getEducation());
+        profile.setCertifications(dto.getCertifications());
         return mapper.toResponseDTO(repo.save(profile));
     }
 
@@ -60,8 +64,17 @@ public class CandidateProfileServiceImpl implements CandidateProfileService {
         if (profile.getExperienceYears() == null && dto.getExperienceYears() != null) {
             profile.setExperienceYears(dto.getExperienceYears());
         }
-        if ((profile.getEducation() == null || profile.getEducation().trim().isEmpty()) && dto.getEducation() != null) {
+        if ((profile.getEducation() == null || profile.getEducation().isEmpty()) && dto.getEducation() != null) {
             profile.setEducation(dto.getEducation());
+        }
+        if ((profile.getAbout() == null || profile.getAbout().trim().isEmpty()) && dto.getAbout() != null) {
+            profile.setAbout(dto.getAbout());
+        }
+        if ((profile.getExperience() == null || profile.getExperience().isEmpty()) && dto.getExperience() != null) {
+            profile.setExperience(dto.getExperience());
+        }
+        if ((profile.getCertifications() == null || profile.getCertifications().isEmpty()) && dto.getCertifications() != null) {
+            profile.setCertifications(dto.getCertifications());
         }
         
         // Hardcoded Email sync protection (Email is primary key, safely skipping overwrites)

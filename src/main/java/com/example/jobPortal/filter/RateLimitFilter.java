@@ -46,24 +46,29 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String clientIp = request.getRemoteAddr();
         String redisKey = "rate_limit:" + clientIp;
 
-        // 3. Increment Redis counter
-        Long requestCount = stringRedisTemplate.opsForValue().increment(redisKey);
+        try {
+            // 3. Increment Redis counter
+            Long requestCount = stringRedisTemplate.opsForValue().increment(redisKey);
 
-        if (requestCount != null && requestCount == 1L) {
-            // New window started natively on first request
-            stringRedisTemplate.expire(redisKey, Duration.ofMinutes(1));
-        }
+            if (requestCount != null && requestCount == 1L) {
+                // New window started natively on first request
+                stringRedisTemplate.expire(redisKey, Duration.ofMinutes(1));
+            }
 
-        // 4. Validate limit
-        if (requestCount != null && requestCount > MAX_REQUESTS_PER_MINUTE) {
-            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            // 4. Validate limit
+            if (requestCount != null && requestCount > MAX_REQUESTS_PER_MINUTE) {
+                response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Rate limit exceeded. Try again later.");
-            
-            response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
-            return;
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Rate limit exceeded. Try again later.");
+
+                response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+                return;
+            }
+        } catch (Exception e) {
+            // Redis is unavailable — degrade gracefully and allow the request through
+            logger.warn("RateLimitFilter: Redis unavailable, skipping rate limiting for " + clientIp + ". Cause: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

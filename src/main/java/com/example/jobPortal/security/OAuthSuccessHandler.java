@@ -1,5 +1,6 @@
 package com.example.jobPortal.security;
 
+import com.example.jobPortal.entity.Role;
 import com.example.jobPortal.entity.User;
 import com.example.jobPortal.repository.UserRepository;
 import com.example.jobPortal.util.CookieUtil;
@@ -23,18 +24,34 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        CustomOAuth2User customOAuth2User= (CustomOAuth2User) authentication.getPrincipal();
-        User user=customOAuth2UserService.processOAuthUser(customOAuth2User);
+        CustomOAuth2User customOAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
-        String accessToken=jwtUtil.generateAccessToken(user.getEmail(),user.getUserId(),user.getRole());
-        String refreshToken=jwtUtil.generateRefreshToken(user.getEmail());
-
-        CookieUtil.addRefreshTokenCookie(response,refreshToken);
-
-        try{
-            response.sendRedirect("http://localhost:3000/oauth-success?access="+accessToken);
+        // Read the desired role stored by AuthController before the OAuth redirect
+        String roleStr = (String) request.getSession().getAttribute("oauth_desired_role");
+        Role desiredRole = null;
+        if (roleStr != null && !roleStr.isEmpty()) {
+            try {
+                desiredRole = Role.valueOf(roleStr);
+            } catch (IllegalArgumentException ignored) {}
         }
-        catch (Exception e){
+        request.getSession().removeAttribute("oauth_desired_role"); // clean up
+
+        User user;
+        try {
+            user = customOAuth2UserService.processOAuthUser(customOAuth2User, desiredRole);
+        } catch (RuntimeException e) {
+            response.sendRedirect("http://localhost:4200/auth/login?error=account_not_found");
+            return;
+        }
+
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getUserId(), user.getRole());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+
+        CookieUtil.addRefreshTokenCookie(response, refreshToken);
+
+        try {
+            response.sendRedirect("http://localhost:4200/oauth-success?access=" + accessToken);
+        } catch (Exception e) {
             throw new RuntimeException("Oauth redirect failed");
         }
     }

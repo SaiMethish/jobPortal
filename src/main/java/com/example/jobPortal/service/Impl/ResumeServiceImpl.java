@@ -82,8 +82,12 @@ public class ResumeServiceImpl implements ResumeService {
         if (profile.getExperienceYears() == null && parsedData.getExperienceYears() != null) {
             profile.setExperienceYears(parsedData.getExperienceYears());
         }
-        if (profile.getEducation() == null && parsedData.getEducation() != null) {
-            profile.setEducation(parsedData.getEducation());
+        if ((profile.getEducation() == null || profile.getEducation().isEmpty()) && parsedData.getEducation() != null) {
+            profile.setEducation(java.util.List.of(
+                com.example.jobPortal.dto.common.EducationDTO.builder()
+                    .institution(parsedData.getEducation())
+                    .build()
+            ));
         }
         if ((profile.getSkills() == null || profile.getSkills().isEmpty()) && parsedData.getSkills() != null && !parsedData.getSkills().isEmpty()) {
             profile.setSkills(parsedData.getSkills());

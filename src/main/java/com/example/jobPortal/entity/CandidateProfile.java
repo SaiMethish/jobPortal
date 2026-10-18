@@ -9,6 +9,9 @@ import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import com.example.jobPortal.dto.common.ExperienceDTO;
+import com.example.jobPortal.dto.common.EducationDTO;
+import com.example.jobPortal.dto.common.CertificationDTO;
 
 @Entity
 @Table(name = "candidate_profiles")
@@ -59,8 +62,20 @@ public class CandidateProfile {
     @Column(name = "resume_text", columnDefinition = "TEXT")
     private String resumeText;
 
-    @Column(name = "education")
-    private String education;
+    @Column(name = "about", columnDefinition = "TEXT")
+    private String about;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "experience", columnDefinition = "json")
+    private List<ExperienceDTO> experience;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "education", columnDefinition = "json")
+    private List<EducationDTO> education;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "certifications", columnDefinition = "json")
+    private List<CertificationDTO> certifications;
 
     @Column(name = "resume_parsed_at")
     private LocalDateTime resumeParsedAt;

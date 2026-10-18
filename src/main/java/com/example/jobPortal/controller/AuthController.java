@@ -53,9 +53,17 @@ public class AuthController {
         return authService.refresh(refreshToken);
     }
 
-    @Operation(summary = "Google OAuth Request", description = "Redirects users natively strictly capturing standard Google Authentication forms.")
+    @Operation(summary = "Google OAuth Request", description = "Redirects users to Google OAuth. Pass ?role=CANDIDATE or ?role=RECRUITER to set the role for new accounts.")
     @GetMapping("oauth2/authorize/google")
-    public void googleRedirect(HttpServletResponse response) throws IOException{
+    public void googleRedirect(@RequestParam(required = false) String role,
+                               HttpServletRequest request,
+                               HttpServletResponse response) throws IOException {
+        // Store the desired role in the session — OAuthSuccessHandler will read it after Google returns
+        if (role != null && !role.isEmpty()) {
+            request.getSession().setAttribute("oauth_desired_role", role.toUpperCase());
+        } else {
+            request.getSession().removeAttribute("oauth_desired_role");
+        }
         response.sendRedirect("/oauth2/authorization/google");
     }
 
