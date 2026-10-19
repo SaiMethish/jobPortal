@@ -56,6 +56,12 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setRead(true);
         notificationRepository.save(notification);
     }
+
+    @Override
+    @Transactional
+    public void markAllAsRead(User user) {
+        notificationRepository.markAllAsReadForUser(user);
+    }
     
     @Override
     public long getUnreadCount(User user) {

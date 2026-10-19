@@ -41,6 +41,15 @@ public class NotificationController {
         notificationService.markAsRead(user, id);
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping("/read-all")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Mark all notifications as read", description = "Marks all unread notifications as read for the authenticated user.")
+    public ResponseEntity<Void> markAllAsRead(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+        notificationService.markAllAsRead(user);
+        return ResponseEntity.ok().build();
+    }
     
     @GetMapping("/unread-count")
     @PreAuthorize("isAuthenticated()")

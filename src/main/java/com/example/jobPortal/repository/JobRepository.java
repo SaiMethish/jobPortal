@@ -28,6 +28,9 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
         /** Fetch all jobs matching a status that have expired past the provided time limit. */
         List<Job> findByStatusAndExpiresAtBefore(JobStatus status, java.time.LocalDateTime time);
 
+        /** Count jobs by status (e.g. OPEN). */
+        long countByStatus(JobStatus status);
+
         /** Search jobs with optional filters — only OPEN jobs are returned. */
         @Query("SELECT j FROM Job j WHERE j.status = :status "
                         + "AND (:title IS NULL OR LOWER(j.title) LIKE LOWER(CONCAT('%', CAST(:title AS string), '%'))) "

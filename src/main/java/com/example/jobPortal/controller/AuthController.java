@@ -83,4 +83,13 @@ public class AuthController {
     public void resetPassword(@Valid @RequestBody ResetPasswordRequest dto) {
         authService.resetPassword(dto.getEmail(), dto.getNewPassword());
     }
+
+    @Operation(summary = "Change Password", description = "Changes the authenticated user's password verifying the current password.")
+    @PostMapping("/change-password")
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
+    public void changePassword(
+            @Valid @RequestBody com.example.jobPortal.dto.request.ChangePasswordRequest dto,
+            @org.springframework.security.core.annotation.AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
+        authService.changePassword(userDetails.getUsername(), dto.getCurrentPassword(), dto.getNewPassword());
+    }
 }

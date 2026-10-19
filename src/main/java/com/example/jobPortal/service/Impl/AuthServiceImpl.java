@@ -6,6 +6,7 @@ import com.example.jobPortal.dto.response.AuthResponse;
 import com.example.jobPortal.entity.CandidateProfile;
 import com.example.jobPortal.entity.RecruiterProfile;
 import com.example.jobPortal.entity.User;
+import com.example.jobPortal.exception.BadRequestException;
 import com.example.jobPortal.exception.EmailAlreadyExistsException;
 import com.example.jobPortal.exception.InvalidTokenException;
 import com.example.jobPortal.exception.ResourceNotFoundException;
@@ -123,5 +124,19 @@ public class AuthServiceImpl implements AuthService {
         
         log.info("Password reset successfully for user: {}", email);
         auditService.logAction("PASSWORD_RESET", "USER", user.getUserId().toString(), email);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void changePassword(String email, String currentPassword, String newPassword) {
+        User user = repo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        if (user.getPassword() == null || !passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new BadRequestException("Current password does not match");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        repo.save(user);
+
+        log.info("Password changed successfully for user: {}", email);
+        auditService.logAction("PASSWORD_CHANGED", "USER", user.getUserId().toString(), email);
     }
 }

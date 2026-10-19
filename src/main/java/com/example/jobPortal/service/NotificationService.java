@@ -14,6 +14,8 @@ public interface NotificationService {
     List<NotificationDTO> getNotifications(User user);
 
     void markAsRead(User user, UUID notificationId);
+
+    void markAllAsRead(User user);
     
     long getUnreadCount(User user);
 }

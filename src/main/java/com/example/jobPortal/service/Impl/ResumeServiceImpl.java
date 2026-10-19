@@ -11,6 +11,7 @@ import com.example.jobPortal.service.ResumeParsingService;
 import com.example.jobPortal.service.ResumeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -120,6 +121,34 @@ public class ResumeServiceImpl implements ResumeService {
         parsedData.setMessage("Preview Generated Successfully");
 
         return parsedData;
+    }
+
+    @Override
+    public Resource loadResumeAsResource(String filename) {
+        try {
+            String cleanName = Paths.get(filename).getFileName().toString();
+            Path filePath = Paths.get(UPLOAD_DIR).resolve(cleanName).normalize();
+            Resource resource = new org.springframework.core.io.UrlResource(filePath.toUri());
+            if (resource.exists() && resource.isReadable()) {
+                return resource;
+            } else {
+                throw new com.example.jobPortal.exception.ResourceNotFoundException("Resume file not found: " + cleanName);
+            }
+        } catch (java.net.MalformedURLException ex) {
+            throw new com.example.jobPortal.exception.ResourceNotFoundException("Resume file not found: " + filename);
+        }
+    }
+
+    @Override
+    public Resource loadUserResumeAsResource(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        CandidateProfile profile = candidateProfileRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Candidate profile not found"));
+        if (profile.getResumeUrl() == null || profile.getResumeUrl().isEmpty()) {
+            throw new com.example.jobPortal.exception.ResourceNotFoundException("No resume uploaded for user " + userEmail);
+        }
+        return loadResumeAsResource(profile.getResumeUrl());
     }
 
     private void validateFileType(MultipartFile file) {

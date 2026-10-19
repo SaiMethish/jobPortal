@@ -8,4 +8,6 @@ public interface RecruiterProfileService {
     RecruiterProfileResponseDTO getRecruiterProfileByUser(User user);
 
     RecruiterProfileResponseDTO updateRecruiterProfile(User user, RecruiterProfileRequestDTO dto);
+
+    com.example.jobPortal.dto.response.CompanyDetailDTO getCompanyDetailById(java.util.UUID id);
 }

@@ -62,4 +62,28 @@ public class ResumeController {
         
         return ResponseEntity.ok("Candidate profile updated successfully from parsed resume data");
     }
+
+    @Operation(summary = "Download Candidate's Own Resume", description = "Streams the authenticated candidate's active resume file.")
+    @GetMapping("/resume/download")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ResponseEntity<org.springframework.core.io.Resource> downloadMyResume(
+            @Parameter(hidden = true) Principal principal) {
+        org.springframework.core.io.Resource resource = resumeService.loadUserResumeAsResource(principal.getName());
+        return ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+    }
+
+    @Operation(summary = "Download Resume by Filename", description = "Streams a resume file by its unique filename for recruiters and candidates.")
+    @GetMapping("/resume/download/{filename:.+}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<org.springframework.core.io.Resource> downloadResumeByFilename(
+            @PathVariable String filename) {
+        org.springframework.core.io.Resource resource = resumeService.loadResumeAsResource(filename);
+        return ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+    }
 }
