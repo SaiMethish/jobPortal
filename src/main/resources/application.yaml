@@ -5,9 +5,13 @@ spring:
       max-request-size: 5MB
   data:
     redis:
-      host: localhost
-      port: 6379
-      timeout: 2000
+      host: ${SPRING_DATA_REDIS_HOST:talented-bull-167217.upstash.io}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      username: ${SPRING_DATA_REDIS_USERNAME:default}
+      password: ${SPRING_DATA_REDIS_PASSWORD:gQAAAAAAAo0xAAIgcDJlYjRiNDEwYWZkYzI0MjExOTc0NDYxMzNlODU4YjlkYQ}
+      ssl:
+        enabled: ${SPRING_DATA_REDIS_SSL_ENABLED:true}
+      timeout: ${SPRING_DATA_REDIS_TIMEOUT:5000}
   security:
     oauth2:
       client:
