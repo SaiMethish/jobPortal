@@ -24,9 +24,9 @@ spring:
   application:
     name: jobPortal
   datasource:
-    url: jdbc:postgresql://localhost:5432/jobportal
-    username: postgres
-    password: methish
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://ep-morning-scene-b5449m3c-pooler.c-7.us-east-2.aws.neon.tech:5432/neondb?sslmode=require}
+    username: ${SPRING_DATASOURCE_USERNAME:neondb_owner}
+    password: ${SPRING_DATASOURCE_PASSWORD:npg_IptQ2Z8UwMHK}
   jpa:
     show-sql: true
     hibernate:
