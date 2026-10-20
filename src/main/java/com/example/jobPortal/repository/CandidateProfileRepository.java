@@ -3,7 +3,10 @@ package com.example.jobPortal.repository;
 import com.example.jobPortal.entity.CandidateProfile;
 import com.example.jobPortal.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,6 +19,10 @@ public interface CandidateProfileRepository extends JpaRepository<CandidateProfi
     boolean existsByUser(User user);
 
     /** Select strictly explicit strings mapped into active Profiles for GC cleanup algorithms */
-    @org.springframework.data.jpa.repository.Query("SELECT c.resumeUrl FROM CandidateProfile c WHERE c.resumeUrl IS NOT NULL")
-    java.util.List<String> findAllResumeUrls();
+    @Query("SELECT c.resumeUrl FROM CandidateProfile c WHERE c.resumeUrl IS NOT NULL")
+    List<String> findAllResumeUrls();
+
+    /** Locate candidate resume storage paths ending with or matching a specific filename */
+    @Query("SELECT c.resumeUrl FROM CandidateProfile c WHERE c.resumeUrl LIKE %:filename%")
+    List<String> findResumeUrlsMatchingFilename(@Param("filename") String filename);
 }

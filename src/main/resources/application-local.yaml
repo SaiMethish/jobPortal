@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/jobportal}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:methish}
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      timeout: ${SPRING_DATA_REDIS_TIMEOUT:2000}
+      ssl:
+        enabled: ${SPRING_DATA_REDIS_SSL_ENABLED:false}
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:mock-client-id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:mock-client-secret}
+            scope:
+              - email
+              - profile
+
+supabase:
+  url: ${SUPABASE_URL:}
+  key: ${SUPABASE_KEY:${SUPABASE_SERVICE_ROLE_KEY:}}
+  bucket: ${SUPABASE_STORAGE_BUCKET:resumes}
+
+logging:
+  level:
+    root: INFO
+    com.example.jobPortal: DEBUG

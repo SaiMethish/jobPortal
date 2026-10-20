@@ -1,41 +1,20 @@
 spring:
+  application:
+    name: jobPortal
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
   servlet:
     multipart:
       max-file-size: 5MB
       max-request-size: 5MB
-  data:
-    redis:
-      host: ${SPRING_DATA_REDIS_HOST:talented-bull-167217.upstash.io}
-      port: ${SPRING_DATA_REDIS_PORT:6379}
-      username: ${SPRING_DATA_REDIS_USERNAME:default}
-      password: ${SPRING_DATA_REDIS_PASSWORD:gQAAAAAAAo0xAAIgcDJlYjRiNDEwYWZkYzI0MjExOTc0NDYxMzNlODU4YjlkYQ}
-      ssl:
-        enabled: ${SPRING_DATA_REDIS_SSL_ENABLED:true}
-      timeout: ${SPRING_DATA_REDIS_TIMEOUT:5000}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   security:
     oauth2:
       client:
-        registration:
-          google:
-            client-id: 123010697609-bnhgs1n2hbkjh3lba07ffclejf226rqc.apps.googleusercontent.com
-            client-secret: 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
-            scope:
-              - email
-              - profile
         provider:
           google:
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-  application:
-    name: jobPortal
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://ep-morning-scene-b5449m3c-pooler.c-7.us-east-2.aws.neon.tech:5432/neondb?sslmode=require}
-    username: ${SPRING_DATASOURCE_USERNAME:neondb_owner}
-    password: ${SPRING_DATASOURCE_PASSWORD:npg_IptQ2Z8UwMHK}
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 logging:
   level:
