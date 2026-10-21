@@ -38,8 +38,8 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Value("${app.ai.service-url:http://localhost:8000}")
     private String aiServiceUrl;
 
-    /** Minimum AI recommendation match score threshold (70%) */
-    private static final float MIN_RECOMMENDATION_THRESHOLD = 0.70f;
+    /** Minimum AI recommendation match score threshold (10% to 100%) */
+    private static final float MIN_RECOMMENDATION_THRESHOLD = 0.10f;
 
     @org.springframework.cache.annotation.Cacheable(value = "recommendedJobs", key = "#candidateUser.userId")
     @Override
@@ -49,18 +49,24 @@ public class RecommendationServiceImpl implements RecommendationService {
 
         String candidateText = buildCandidateText(profile);
         
-        // Fetch up to 150 recent OPEN jobs across all sources (both DIRECT and GREENHOUSE)
-        Pageable pageable = PageRequest.of(0, 150, Sort.by(Sort.Direction.DESC, "createdAt"));
+        // Fetch up to 200 recent OPEN jobs across all sources (both DIRECT and GREENHOUSE)
+        Pageable pageable = PageRequest.of(0, 200, Sort.by(Sort.Direction.DESC, "createdAt"));
         List<Job> openJobs = jobRepository.findByStatus(JobStatus.OPEN, pageable).getContent();
 
         if (openJobs.isEmpty()) {
             return Collections.emptyList();
         }
 
-        // If Candidate has no extractable profile or resume text, return empty (no matches >= 70%)
+        // If candidate has no extractable profile or resume text yet, return open jobs with a baseline relevance score
         if (candidateText == null || candidateText.trim().isEmpty()) {
-            log.warn("Candidate profile has no extractable text or skills. Returning 0 recommendations.");
-            return Collections.emptyList();
+            log.info("Candidate profile has no extractable text or skills yet. Returning open jobs with baseline 20% relevance.");
+            return openJobs.stream()
+                    .limit(50)
+                    .map(job -> RecommendedJobDTO.builder()
+                            .job(mapToResponseDTO(job))
+                            .score(0.20f)
+                            .build())
+                    .collect(Collectors.toList());
         }
 
         List<String> jobTexts = openJobs.stream()
@@ -96,8 +102,8 @@ public class RecommendationServiceImpl implements RecommendationService {
                 List<Float> rawScores = response.getScores();
                 for (int i = 0; i < openJobs.size(); i++) {
                     float raw = i < rawScores.size() ? rawScores.get(i) : 0.0f;
-                    // Calibrate cosine similarity (typically 0.3 - 0.9) to intuitive percentage
-                    float calibrated = Math.max(0.0f, Math.min(0.99f, (raw - 0.15f) / 0.75f));
+                    // Calibrate cosine similarity (typically 0.3 - 0.9) to intuitive percentage from 0.10 to 1.00
+                    float calibrated = Math.max(0.10f, Math.min(0.99f, (raw - 0.15f) / 0.75f));
                     float finalScore = Math.max(raw, calibrated);
                     
                     if (finalScore >= MIN_RECOMMENDATION_THRESHOLD) {
@@ -115,11 +121,11 @@ public class RecommendationServiceImpl implements RecommendationService {
             scoredJobs = calculateHeuristicRecommendations(openJobs, profile, candidateText);
         }
 
-        // Return only jobs meeting or exceeding 70% recommendation, sorted by score DESC
+        // Return all jobs meeting or exceeding 10% recommendation, sorted by score DESC (100% -> 10%)
         return scoredJobs.stream()
                 .filter(rec -> rec.getScore() != null && rec.getScore() >= MIN_RECOMMENDATION_THRESHOLD)
                 .sorted(Comparator.comparing(RecommendedJobDTO::getScore).reversed())
-                .limit(25)
+                .limit(100)
                 .collect(Collectors.toList());
     }
 
@@ -157,16 +163,17 @@ public class RecommendationServiceImpl implements RecommendationService {
             }
         }
 
+        // Title word match boost
+        boolean titleMatch = Arrays.stream(job.getTitle().toLowerCase().split("\\W+"))
+                .anyMatch(w -> w.length() > 3 && candidateText.toLowerCase().contains(w));
+        double bonus = titleMatch ? 0.20 : 0.05;
+
         if (totalSkills > 0) {
             double skillRatio = (double) matchedSkills / totalSkills;
-            // Title word match boost
-            boolean titleMatch = Arrays.stream(job.getTitle().toLowerCase().split("\\W+"))
-                    .anyMatch(w -> w.length() > 3 && candidateText.toLowerCase().contains(w));
-            double bonus = titleMatch ? 0.15 : 0.0;
-            return (float) Math.min(0.98, Math.max(0.40, skillRatio * 0.85 + bonus));
+            return (float) Math.min(0.98, Math.max(0.12, skillRatio * 0.75 + bonus));
         }
 
-        return 0.50f;
+        return (float) Math.min(0.75, Math.max(0.15, bonus + 0.15));
     }
 
     private String buildCandidateText(CandidateProfile profile) {
