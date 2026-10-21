@@ -32,6 +32,7 @@ public class GreenhouseSyncService {
     private final JobRepository jobRepository;
     private final com.example.jobPortal.repository.SavedJobRepository savedJobRepository;
     private final com.example.jobPortal.repository.JobApplicationRepository jobApplicationRepository;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
     private static final List<String> COMMON_TECH_SKILLS = List.of(
             "Java", "Spring Boot", "Python", "React", "Angular", "Node.js", "TypeScript",
@@ -109,9 +110,14 @@ public class GreenhouseSyncService {
      * - Refreshes Redis caches
      */
     @CacheEvict(value = {"jobSearch", "jobDetails", "recommendedJobs"}, allEntries = true)
-    @Transactional
     public SyncSummaryDTO syncAllCompanies() {
         seedDefaultCompaniesIfEmpty();
+
+        try {
+            jdbcTemplate.execute("ALTER TABLE jobs ALTER COLUMN recruiter_profile_id DROP NOT NULL");
+        } catch (Exception e) {
+            log.debug("Schema notice: {}", e.getMessage());
+        }
 
         long startTime = System.currentTimeMillis();
         List<AtsCompany> activeCompanies = atsCompanyRepository.findByActiveTrueAndSource("GREENHOUSE");
