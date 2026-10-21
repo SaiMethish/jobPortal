@@ -61,6 +61,8 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/companies/**")
                         .permitAll()
+                        .requestMatchers("/actuator/**")
+                        .permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
