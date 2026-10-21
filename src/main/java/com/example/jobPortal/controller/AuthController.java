@@ -11,6 +11,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import com.example.jobPortal.util.CookieUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,6 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@CrossOrigin(allowCredentials = "true",origins = "http://localhost:4200")
 public class AuthController {
     private final AuthService authService;
 
@@ -70,12 +70,7 @@ public class AuthController {
     @Operation(summary = "Logout User", description = "Clears the refresh_token cookie.")
     @PostMapping("/logout")
     public void logout(HttpServletResponse response) {
-        Cookie cookie = new Cookie("refresh_token", null);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true); // Should match environment
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
+        CookieUtil.clearRefreshToken(response);
     }
 
     @Operation(summary = "Reset Password", description = "Directly resets the user password (simplified flow without email token).")

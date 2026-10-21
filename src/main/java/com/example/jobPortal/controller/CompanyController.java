@@ -12,7 +12,6 @@ import java.util.UUID;
 @Tag(name = "Company Details", description = "Public company endpoints for candidates to view company profiles and their open jobs")
 @RestController
 @RequestMapping("/companies")
-@CrossOrigin(allowCredentials = "true", origins = "http://localhost:4200")
 @RequiredArgsConstructor
 public class CompanyController {
 

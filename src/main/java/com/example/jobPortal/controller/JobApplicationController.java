@@ -24,7 +24,6 @@ import java.util.UUID;
 @Tag(name = "Job Application APIs", description = "Candidate application endpoints and Recruiter applicant screening tools mapped strictly via UUID relationships.")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class JobApplicationController {
 
     private final JobApplicationService jobApplicationService;

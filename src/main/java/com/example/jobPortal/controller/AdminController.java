@@ -21,7 +21,6 @@ import java.util.UUID;
 @Tag(name = "Admin Console APIs", description = "Privileged administrator operations for platform metrics, user management, and job moderation.")
 @RestController
 @RequestMapping("/admin")
-@CrossOrigin(allowCredentials = "true", origins = "http://localhost:4200")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {

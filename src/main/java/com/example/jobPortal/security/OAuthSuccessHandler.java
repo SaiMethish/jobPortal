@@ -22,6 +22,9 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
 
+    @org.springframework.beans.factory.annotation.Value("${app.frontend-url:http://localhost:4200}")
+    private String frontendUrl;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         CustomOAuth2User customOAuth2User = (CustomOAuth2User) authentication.getPrincipal();
@@ -40,7 +43,7 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
         try {
             user = customOAuth2UserService.processOAuthUser(customOAuth2User, desiredRole);
         } catch (RuntimeException e) {
-            response.sendRedirect("http://localhost:4200/auth/login?error=account_not_found");
+            response.sendRedirect(frontendUrl + "/auth/login?error=account_not_found");
             return;
         }
 
@@ -50,7 +53,7 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
         CookieUtil.addRefreshTokenCookie(response, refreshToken);
 
         try {
-            response.sendRedirect("http://localhost:4200/oauth-success?access=" + accessToken);
+            response.sendRedirect(frontendUrl + "/oauth-success?access=" + accessToken);
         } catch (Exception e) {
             throw new RuntimeException("Oauth redirect failed");
         }

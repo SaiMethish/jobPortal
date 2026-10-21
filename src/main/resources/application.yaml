@@ -20,3 +20,9 @@ logging:
   level:
     root: INFO
     com.example.jobPortal: DEBUG
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:4200}
+  cookie:
+    secure: ${COOKIE_SECURE:false}
+    same-site: ${COOKIE_SAME_SITE:Lax}

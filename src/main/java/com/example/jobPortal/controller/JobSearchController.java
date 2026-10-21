@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Job Search APIs", description = "Public candidate endpoints evaluating indexed Job postings and extracting single entries.")
 @RestController
 @RequestMapping("/jobs")
-@CrossOrigin(allowCredentials = "true", origins = "http://localhost:4200")
 @RequiredArgsConstructor
 public class JobSearchController {
 

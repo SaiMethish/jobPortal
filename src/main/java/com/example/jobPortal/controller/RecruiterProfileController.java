@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/recruiter")
-@CrossOrigin(allowCredentials = "true", origins = "http://localhost:4200")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('RECRUITER')")
 public class RecruiterProfileController {
