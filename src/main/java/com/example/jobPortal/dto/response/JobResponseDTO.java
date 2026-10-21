@@ -26,6 +26,11 @@ public class JobResponseDTO implements java.io.Serializable {
     private JobType jobType;
     private JobStatus status;
     private int applicationCount;
+    private String source;
+    private String externalId;
+    private String applicationUrl;
+    private String companyCategory;
+    private String city;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime expiresAt;

@@ -23,4 +23,7 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
 
     /** Fetch applications for a specific job with a given status. */
     Page<JobApplication> findByJobAndStatus(Job job, JobApplicationStatus status, Pageable pageable);
+
+    /** Delete all applications for a collection of jobs (e.g. when purging expired jobs). */
+    void deleteByJobIn(java.util.Collection<Job> jobs);
 }

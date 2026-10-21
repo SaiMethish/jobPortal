@@ -28,6 +28,9 @@ public class JobSearchServiceImpl implements JobSearchService {
             Long salaryMin,
             Long salaryMax,
             JobType jobType,
+            String source,
+            String companyCategory,
+            String companyName,
             Pageable pageable) {
 
         Page<Job> jobs = jobRepository.searchJobs(
@@ -40,6 +43,9 @@ public class JobSearchServiceImpl implements JobSearchService {
                 salaryMin,
                 salaryMax,
                 jobType,
+                source,
+                companyCategory,
+                companyName,
                 pageable);
 
         return jobs.map(this::toResponseDTO);
@@ -53,12 +59,22 @@ public class JobSearchServiceImpl implements JobSearchService {
         return toResponseDTO(job);
     }
 
+    @Override
+    public java.util.List<String> getDistinctCities() {
+        return jobRepository.findDistinctCities();
+    }
+
+    @Override
+    public java.util.List<String> getDistinctCompanyNames() {
+        return jobRepository.findDistinctCompanyNames();
+    }
+
     // ── Helper ───────────────────────────────────────────────
     private JobResponseDTO toResponseDTO(Job job) {
         return JobResponseDTO.builder()
                 .id(job.getId())
-                .recruiterProfileId(job.getRecruiterProfile().getId())
-                .companyName(job.getRecruiterProfile().getCompanyName())
+                .recruiterProfileId(job.getRecruiterProfile() != null ? job.getRecruiterProfile().getId() : null)
+                .companyName(job.getEffectiveCompanyName())
                 .title(job.getTitle())
                 .description(job.getDescription())
                 .skills(job.getSkills())
@@ -70,8 +86,14 @@ public class JobSearchServiceImpl implements JobSearchService {
                 .jobType(job.getJobType())
                 .status(job.getStatus())
                 .applicationCount(job.getApplicationCount())
+                .source(job.getSource())
+                .externalId(job.getExternalId())
+                .applicationUrl(job.getApplicationUrl())
+                .companyCategory(job.getCompanyCategory())
+                .city(job.getCity())
                 .createdAt(job.getCreatedAt())
                 .updatedAt(job.getUpdatedAt())
+                .expiresAt(job.getExpiresAt())
                 .build();
     }
 }

@@ -17,4 +17,6 @@ public interface SavedJobRepository extends JpaRepository<SavedJob, UUID> {
     List<SavedJob> findByCandidateProfile(CandidateProfile candidateProfile);
     
     void deleteByCandidateProfileAndJob(CandidateProfile candidateProfile, Job job);
+
+    void deleteByJobIn(java.util.Collection<Job> jobs);
 }

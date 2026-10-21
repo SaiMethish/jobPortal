@@ -25,8 +25,28 @@ public class Job {
 
     // ── Relationship ─────────────────────────────────────────
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recruiter_profile_id", nullable = false)
+    @JoinColumn(name = "recruiter_profile_id", nullable = true)
     private RecruiterProfile recruiterProfile;
+
+    // ── Company / ATS Source Details ─────────────────────────
+    @Column(name = "company_name")
+    private String companyName;
+
+    @Column(name = "company_category")
+    private String companyCategory; // "PRODUCT", "SERVICE"
+
+    @Column(name = "source")
+    @Builder.Default
+    private String source = "INTERNAL"; // "INTERNAL", "GREENHOUSE", "LEVER"
+
+    @Column(name = "external_id")
+    private String externalId;
+
+    @Column(name = "application_url", columnDefinition = "TEXT")
+    private String applicationUrl;
+
+    @Column(name = "city")
+    private String city;
 
     // ── Job Details ──────────────────────────────────────────
     @Column(name = "title", nullable = false)
@@ -85,5 +105,15 @@ public class Job {
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public String getEffectiveCompanyName() {
+        if (this.companyName != null && !this.companyName.trim().isEmpty()) {
+            return this.companyName;
+        }
+        if (this.recruiterProfile != null && this.recruiterProfile.getCompanyName() != null) {
+            return this.recruiterProfile.getCompanyName();
+        }
+        return "Company";
     }
 }

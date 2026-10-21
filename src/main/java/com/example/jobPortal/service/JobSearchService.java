@@ -15,7 +15,14 @@ public interface JobSearchService {
             Long salaryMin,
             Long salaryMax,
             JobType jobType,
+            String source,
+            String companyCategory,
+            String companyName,
             Pageable pageable);
 
     JobResponseDTO getJobById(java.util.UUID jobId);
+
+    java.util.List<String> getDistinctCities();
+
+    java.util.List<String> getDistinctCompanyNames();
 }

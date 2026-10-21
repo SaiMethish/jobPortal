@@ -36,19 +36,40 @@ public class JobSearchController {
     public Page<JobResponseDTO> searchJobs(
             @Parameter(description = "Keyword title matching") @RequestParam(required = false) String title,
             @Parameter(description = "Required technical skills") @RequestParam(required = false) String skills,
-            @Parameter(description = "Geographic bounds") @RequestParam(required = false) String location,
+            @Parameter(description = "Geographic bounds or city") @RequestParam(required = false) String location,
             @Parameter(description = "Minimum chronological experience limits") @RequestParam(required = false) Integer experienceMin,
             @Parameter(description = "Maximum chronological experience limits") @RequestParam(required = false) Integer experienceMax,
             @Parameter(description = "Floor salary bounds") @RequestParam(required = false) Long salaryMin,
             @Parameter(description = "Ceiling salary bounds") @RequestParam(required = false) Long salaryMax,
             @Parameter(description = "FULL_TIME, PART_TIME, CONTRACT constraints") @RequestParam(required = false) JobType jobType,
+            @Parameter(description = "ATS Source: ALL, INTERNAL, GREENHOUSE") @RequestParam(required = false) String source,
+            @Parameter(description = "Company category: PRODUCT, SERVICE") @RequestParam(required = false) String companyCategory,
+            @Parameter(description = "Company name filter") @RequestParam(required = false) String companyName,
             @Parameter(description = "Pagination configuration") Pageable pageable) {
+
+        String effectiveSource = (source != null && !source.equalsIgnoreCase("ALL")) ? source.toUpperCase() : null;
 
         return jobSearchService.searchJobs(
                 title, skills, location,
                 experienceMin, experienceMax,
                 salaryMin, salaryMax,
-                jobType, pageable);
+                jobType,
+                effectiveSource,
+                companyCategory,
+                companyName,
+                pageable);
+    }
+
+    @Operation(summary = "Get Distinct Indian Cities", description = "Returns active Indian cities with available open jobs for frontend filter chips")
+    @GetMapping("/cities")
+    public java.util.List<String> getCities() {
+        return jobSearchService.getDistinctCities();
+    }
+
+    @Operation(summary = "Get Distinct Companies", description = "Returns active employers with open jobs for frontend filter dropdown")
+    @GetMapping("/companies")
+    public java.util.List<String> getCompanies() {
+        return jobSearchService.getDistinctCompanyNames();
     }
 
     @Operation(summary = "Fetch Job via ID", description = "Explicitly loads a single specific Job's parameters from Postgres using primary keys.")
