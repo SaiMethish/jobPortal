@@ -58,14 +58,25 @@ REST API backend for **JobOrbit** — an AI-powered job portal that aggregates r
 - Session expiry → auto logout → preserve intended redirect destination URL
 - Centralized CORS config with `SameSite=None; Secure=true` for Vercel–Render cross-origin
 
-### 🏢 Greenhouse ATS Integration (`GreenhouseSyncService`)
-- Fetches live jobs from 35+ registered Indian tech companies via the public Greenhouse API
-- Filters jobs to India-relevant locations using `IndiaLocationUtil`
-- Upserts jobs into PostgreSQL (create new, update changed, remove expired/closed)
-- Extracts skills from job descriptions using keyword matching against a curated tech skill dictionary
+### 🏗️ Dual Job Source Model
+
+**Source 1 — Direct Recruiter Job Postings**
+- Registered recruiters create a company profile and post job listings directly on the platform
+- Each listing includes: title, description, required skills, salary range, experience range, job type, location, and status
+- Recruiters manage their own listings (edit, close, delete) and review all applicants per job
+- Candidates apply directly on the platform; applications are tracked with status updates (Shortlisted / Rejected / Offered)
+- Set with `source = INTERNAL` in the database
+
+**Source 2 — Greenhouse ATS Integration (`GreenhouseSyncService`)**
+- Fetches live job listings from 35+ registered Indian tech companies via the Greenhouse public API
+- Filters to India-relevant locations using `IndiaLocationUtil`
+- Upserts into PostgreSQL using the same `Job` entity schema as recruiter-posted jobs
+  (new → insert, changed → update, closed/expired → delete)
+- Extracts skills from job descriptions using keyword matching against a curated tech dictionary
+- Sets `source = GREENHOUSE` and `applicationUrl` to the company's original apply link so candidates are redirected externally
 - Daily automated sync via `@Scheduled(cron = "0 2 * * *")` — runs at 2 AM every day
-- On-demand sync via `POST /admin/sync/greenhouse`
-- Cache eviction (`jobSearch`, `jobDetails`, `recommendedJobs`) after every sync
+- On-demand sync available via `POST /admin/sync/greenhouse`
+- Cache eviction (`jobSearch`, `jobDetails`, `recommendedJobs`) runs after every sync
 
 ### 🤖 AI Recommendation Engine (`RecommendationServiceImpl`)
 - Builds candidate text from: resume text, skills, experience, education, location
