@@ -38,7 +38,7 @@ logging:
     com.example.jobPortal: INFO
 
 app:
-  frontend-url: ${FRONTEND_URL:https://career-gallery-ddkzeitla-saimethish.vercel.app}
+  frontend-url: ${FRONTEND_URL:https://job-orbit-eleven.vercel.app}
   cookie:
     secure: ${COOKIE_SECURE:true}
     same-site: ${COOKIE_SAME_SITE:None}

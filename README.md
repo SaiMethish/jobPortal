@@ -4,16 +4,15 @@
 ### Spring Boot 3 · PostgreSQL · JWT · Greenhouse ATS · AI Recommendation Engine
 
 [![API Health](https://img.shields.io/badge/API-Live%20on%20Render-0f62fe?style=for-the-badge&logo=render)](https://jobportal-26gu.onrender.com/actuator/health)
-[![Frontend](https://img.shields.io/badge/Frontend-JobOrbit-6929c4?style=for-the-badge&logo=vercel)](https://career-gallery.vercel.app)
+[![Frontend](https://img.shields.io/badge/Frontend-JobOrbit-6929c4?style=for-the-badge&logo=vercel)](https://job-orbit-eleven.vercel.app)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-6DB33F?style=for-the-badge&logo=springboot)](https://spring.io/projects/spring-boot)
 [![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk)](https://openjdk.org)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 REST API backend for **JobOrbit** — an AI-powered job portal that aggregates real job listings from Greenhouse ATS companies, parses candidate resumes, and ranks jobs against candidate profiles using NLP cosine similarity.
 
 *Your skills in orbit. Your career in motion.*
 
-[📦 Frontend Repo](https://github.com/SaiMethish/career-gallery) &nbsp;·&nbsp; [🔗 Live App](https://career-gallery.vercel.app)
+[📦 Frontend Repo](https://github.com/SaiMethish/career-gallery) &nbsp;·&nbsp; [🔗 Live App](https://job-orbit-eleven.vercel.app)
 
 </div>
 
@@ -24,7 +23,7 @@ REST API backend for **JobOrbit** — an AI-powered job portal that aggregates r
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                       CLIENT — JobOrbit (Angular 17)                │
-│                       career-gallery.vercel.app                     │
+│                       job-orbit-eleven.vercel.app                   │
 └────────────────────────────┬────────────────────────────────────────┘
                              │  HTTPS + JWT Cookie (SameSite=None)
 ┌────────────────────────────▼────────────────────────────────────────┐
@@ -220,9 +219,3 @@ cd jobPortal
 | Frontend (JobOrbit) | https://job-orbit-eleven.vercel.app |
 
 > ⚠️ **Render Free Tier:** The server sleeps after 15 minutes of inactivity. The first request after sleep takes ~60 seconds. The Angular frontend shows a loading state gracefully during wake-up.
-
----
-
-## 📄 License
-
-MIT License © 2026 [SaiMethish](https://github.com/SaiMethish)

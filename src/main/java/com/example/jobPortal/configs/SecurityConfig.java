@@ -91,6 +91,7 @@ public class SecurityConfig {
                 "http://localhost:4200",
                 "http://127.0.0.1:4200",
                 "https://*.vercel.app",
+                "https://job-orbit-eleven.vercel.app",
                 "https://career-gallery-ddkzeitla-saimethish.vercel.app"
         ));
         config.setAllowedHeaders(List.of("*"));
