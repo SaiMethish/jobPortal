@@ -209,27 +209,6 @@ cd jobPortal
 ./mvnw spring-boot:run
 ```
 
-### Key `application.properties` Configuration
-
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/jobportal
-spring.datasource.username=postgres
-spring.datasource.password=yourpassword
-
-spring.jpa.hibernate.ddl-auto=update
-
-app.jwt.secret=your-256-bit-base64-encoded-secret
-app.jwt.expiration=900000
-app.jwt.refresh-expiration=604800000
-
-app.frontend.url=http://localhost:4200
-app.ai.service-url=http://localhost:8000
-
-supabase.url=https://your-project.supabase.co
-supabase.key=your-supabase-service-role-key
-supabase.bucket=resumes
-```
-
 ---
 
 ## 🌐 Deployment
@@ -238,7 +217,7 @@ supabase.bucket=resumes
 |---------|-----|
 | Backend REST API | https://jobportal-26gu.onrender.com |
 | Health Check | https://jobportal-26gu.onrender.com/actuator/health |
-| Frontend (JobOrbit) | https://career-gallery.vercel.app |
+| Frontend (JobOrbit) | https://job-orbit-eleven.vercel.app |
 
 > ⚠️ **Render Free Tier:** The server sleeps after 15 minutes of inactivity. The first request after sleep takes ~60 seconds. The Angular frontend shows a loading state gracefully during wake-up.
 
